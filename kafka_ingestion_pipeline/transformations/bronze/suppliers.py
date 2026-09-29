@@ -1,0 +1,25 @@
+from pyspark import pipelines as dp
+
+# ============================================================================
+# Source configuration
+# ============================================================================
+
+VOLUME_PATH = "/Volumes/operations-catalog/supplychain/procurement"
+
+FILE_PATTERN = "PNRao_SupplyChain_Supplier_Master.csv"
+
+
+@dp.table(
+    name="`operations-catalog`.supplychain.bronze_suppliers",
+    comment="Supplier master data from procurement volume"
+)
+def bronze_suppliers():
+    return (
+        spark.readStream
+        .format("cloudFiles")
+        .option("cloudFiles.format", "csv")
+        .option("header", "true")
+        .option("cloudFiles.inferColumnTypes", "true")
+        .option("pathGlobFilter", FILE_PATTERN)
+        .load(VOLUME_PATH)
+    )
