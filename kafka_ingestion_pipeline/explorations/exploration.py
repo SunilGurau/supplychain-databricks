@@ -26,3 +26,8 @@ print(ca_contents)
 # MAGIC %sql
 # MAGIC SELECT count(*)
 # MAGIC FROM `operations-catalog`.supplychain.bronze_purchase_order_lines;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC select count(*) from `operations-catalog`.supplychain.silver_purchase_order
