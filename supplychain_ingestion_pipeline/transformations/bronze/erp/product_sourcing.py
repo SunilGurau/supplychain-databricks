@@ -48,6 +48,6 @@ def bronze_erp_product_sourcing_historical():
 # Real-time: new ERP extract files landing in S3 (Auto Loader)
 # ============================================================================
 
-@dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
-def bronze_erp_product_sourcing_realtime():
-    return read_s3_csv(SYSTEM, SOURCE_TABLE, COLUMNS)
+# @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
+# def bronze_erp_product_sourcing_realtime():
+#     return read_s3_csv(SYSTEM, SOURCE_TABLE, COLUMNS)

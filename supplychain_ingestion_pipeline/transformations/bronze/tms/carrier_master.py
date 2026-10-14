@@ -15,9 +15,6 @@ SOURCE_TABLE = "carrier_master"
 TARGET = "bronze_tms_carrier_master"
 KAFKA_TOPIC = "tms_public_carrier_master"
 
-# Enable once the upstream team grants Kafka access
-REALTIME_ENABLED = False
-
 # Source columns, landed as raw STRINGs
 COLUMNS = [
     "carrierId",
@@ -53,8 +50,6 @@ def bronze_tms_carrier_master_historical():
 # Real-time: TMS events from Kafka
 # ============================================================================
 
-if REALTIME_ENABLED:
-
-    @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
-    def bronze_tms_carrier_master_realtime():
-        return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS)
+# @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
+# def bronze_tms_carrier_master_realtime():
+#     return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS)

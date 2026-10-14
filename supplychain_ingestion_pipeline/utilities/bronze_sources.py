@@ -3,7 +3,8 @@ Shared source readers for the bronze layer.
 
 Every bronze table is a streaming table fed by two append flows:
 
-  * <table>_historical  (once=True)  -> CSV extract in the UC volume
+  * <table>_historical  (once=True)  -> CSV extract in the system's UC volume,
+                                        /Volumes/operations-catalog/supplychain/<system>/<table>.csv
   * <table>_realtime                 -> the system's live source
                                           erp: Auto Loader on S3
                                           wms: Debezium CDC events on Kafka
@@ -14,7 +15,6 @@ Both flows write into the same table, so every reader returns the same shape:
 the source columns as raw STRINGs followed by the bronze metadata columns.
 
 Pipeline configuration:
-  volume       UC volume holding the extracts, e.g. /Volumes/operations-catalog/supplychain/landing
   erp_s3_path  S3 prefix with one folder per ERP table
   oms_api_url  OMS API base URL
 """
@@ -25,14 +25,15 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import (
     BooleanType,
-    IntegerType,
     LongType,
     StringType,
     StructField,
     StructType,
-    TimestampType,
 )
 
+
+# One UC volume per source system (erp, wms, tms, oms), one CSV per table
+VOLUME_ROOT = "/Volumes/operations-catalog/supplychain"
 
 # No strict latency requirement: micro-batch every 5 seconds
 REALTIME_SPARK_CONF = {"pipelines.trigger.interval": "5 seconds"}
@@ -66,17 +67,6 @@ KAFKA_CLIENT_KEY = (
 # Bronze metadata
 # ============================================================================
 
-SOURCE_STRUCT = StructType([
-    StructField("type", StringType()),          # volume_csv | s3_csv | kafka | api
-    StructField("uri", StringType()),           # file path / topic / API endpoint
-    StructField("file_modification_time", TimestampType()),
-    StructField("kafka_topic", StringType()),
-    StructField("kafka_partition", IntegerType()),
-    StructField("kafka_offset", LongType()),
-    StructField("kafka_timestamp", TimestampType()),
-    StructField("kafka_key", StringType()),
-])
-
 CDC_STRUCT = StructType([
     StructField("op", StringType()),
     StructField("lsn", LongType()),
@@ -90,12 +80,20 @@ def _string_schema(columns):
 
 
 def _source(source_type, **fields):
-    fields["type"] = F.lit(source_type)
+    """
+    Lineage of a bronze row as a VARIANT holding only the fields of its own
+    source, e.g. _source:kafka_offset::bigint or _source:file_modification_time.
 
-    return F.struct(*[
-        fields.get(f.name, F.lit(None)).cast(f.dataType).alias(f.name)
-        for f in SOURCE_STRUCT
-    ])
+      volume_csv / s3_csv  type, uri, file_modification_time
+      kafka                type, uri, kafka_topic, kafka_partition,
+                           kafka_offset, kafka_timestamp, kafka_key
+      api                  type, uri
+    """
+
+    return F.to_variant_object(F.struct(
+        F.lit(source_type).alias("type"),
+        *[column.alias(name) for name, column in fields.items()],
+    ))
 
 
 def _bronze_select(
@@ -131,8 +129,7 @@ def _bronze_select(
 
 def read_volume_csv(system, table, columns) -> DataFrame:
     spark = SparkSession.active()
-    # volume = spark.conf.get("volume")
-    volume = f"/Volumes/operations-catalog/supplychain/{system}"
+    volume = f"{VOLUME_ROOT}/{system}"
 
     df = (
         spark.read

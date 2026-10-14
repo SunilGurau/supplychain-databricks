@@ -14,9 +14,6 @@ SYSTEM = "oms"
 SOURCE_TABLE = "fulfillment_lines"
 TARGET = "bronze_oms_fulfillment_lines"
 
-# Enable once the OMS API connector is implemented
-REALTIME_ENABLED = False
-
 # Source columns, landed as raw STRINGs
 COLUMNS = [
     "fulfillment_line_id",
@@ -50,8 +47,6 @@ def bronze_oms_fulfillment_lines_historical():
 # Real-time: OMS REST API (template connector, see utilities/oms_api_source.py)
 # ============================================================================
 
-if REALTIME_ENABLED:
-
-    @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
-    def bronze_oms_fulfillment_lines_realtime():
-        return read_oms_api(SYSTEM, SOURCE_TABLE, COLUMNS)
+# @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
+# def bronze_oms_fulfillment_lines_realtime():
+#     return read_oms_api(SYSTEM, SOURCE_TABLE, COLUMNS)

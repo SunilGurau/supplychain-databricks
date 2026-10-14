@@ -15,9 +15,6 @@ SOURCE_TABLE = "shipment_events"
 TARGET = "bronze_tms_shipment_events"
 KAFKA_TOPIC = "tms_public_shipment_events"
 
-# Enable once the upstream team grants Kafka access
-REALTIME_ENABLED = False
-
 # Source columns, landed as raw STRINGs
 COLUMNS = [
     "eventId",
@@ -53,8 +50,6 @@ def bronze_tms_shipment_events_historical():
 # Real-time: TMS events from Kafka
 # ============================================================================
 
-if REALTIME_ENABLED:
-
-    @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
-    def bronze_tms_shipment_events_realtime():
-        return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS)
+# @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
+# def bronze_tms_shipment_events_realtime():
+#     return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS)
