@@ -131,7 +131,8 @@ def _bronze_select(
 
 def read_volume_csv(system, table, columns) -> DataFrame:
     spark = SparkSession.active()
-    volume = spark.conf.get("volume")
+    # volume = spark.conf.get("volume")
+    volume = f"/Volumes/operations-catalog/supplychain/{system}"
 
     df = (
         spark.read
@@ -139,7 +140,7 @@ def read_volume_csv(system, table, columns) -> DataFrame:
         .option("header", "true")
         .option("rescuedDataColumn", "_rescued_data")
         .schema(_string_schema(columns))
-        .load(f"{volume}/{system}/{table}.csv")
+        .load(f"{volume}/{table}.csv")
     )
 
     return _bronze_select(

@@ -54,6 +54,6 @@ def bronze_wms_stock_movements_historical():
 # Real-time: WMS CDC events (Debezium) from Kafka
 # ============================================================================
 
-@dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
-def bronze_wms_stock_movements_realtime():
-    return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS, cdc=True)
+# @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
+# def bronze_wms_stock_movements_realtime():
+#     return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS, cdc=True)

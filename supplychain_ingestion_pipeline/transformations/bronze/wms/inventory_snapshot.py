@@ -35,7 +35,6 @@ dp.create_streaming_table(
     table_properties={"quality": "bronze"},
 )
 
-
 # ============================================================================
 # Historical refill: one-time load of the extract in the UC volume
 # ============================================================================
@@ -49,6 +48,6 @@ def bronze_wms_inventory_snapshot_historical():
 # Real-time: WMS CDC events (Debezium) from Kafka
 # ============================================================================
 
-@dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
-def bronze_wms_inventory_snapshot_realtime():
-    return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS, cdc=True)
+# @dp.append_flow(target=TARGET, name=f"{TARGET}_realtime", spark_conf=REALTIME_SPARK_CONF)
+# def bronze_wms_inventory_snapshot_realtime():
+#     return read_kafka_json(SYSTEM, KAFKA_TOPIC, COLUMNS, cdc=True)
